@@ -1,0 +1,4 @@
+id,nombre,marca,genero,imagen1,imagen2,imagen3,tallas,descripcion
+1,Air Jordan 1 High OG Chicago,Jordan,Hombre,https://images.unsplash.com/photo-1556906781-9a412961c28c,https://images.unsplash.com/photo-1600185365483-26d7a4cc7519,https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a,"38,39,40,41,42,43","El icónico diseño en cuero premium de los Bulls de Chicago."
+2,Nike Air Force 1 All White,Nike,Unisex,https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb,https://images.unsplash.com/photo-1549298916-b41d501d3772,https://images.unsplash.com/photo-1582588678413-dbf45f4823e9,"35,36,37,38,39,40,41,42","Las zapatillas urbanas definitivas de cuero blanco."
+3,Adidas Forum Low Pink Glow,Adidas,Dama,https://images.unsplash.com/photo-1597045566677-8cf032ed6634,,,,"35,36,37,38,39","Silueta retro de baloncesto adaptada con correas y detalles en color rosa pastel."

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KICKS - Panel de Administración</title>
+    <meta name="description" content="Panel de carga masiva y gestión de tenis para el catálogo.">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/client.css"> <!-- Reused overlay/modal styling -->
+</head>
+<body>
+
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <div class="admin-title-area">
+                <h1 class="logo" onclick="window.location.href='index.html'">KICKS</h1>
+                <span class="admin-badge">Admin Panel</span>
+            </div>
+            <a href="index.html" class="back-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Ver Catálogo
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="admin-main">
+        
+        <!-- Top row: Carga Masiva y Acciones -->
+        <div class="dashboard-grid">
+            
+            <!-- Left Panel: Importación Masiva CSV -->
+            <div class="admin-card">
+                <div class="card-header-admin">
+                    <h2 class="card-title-admin">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Carga Masiva (Archivo CSV)
+                    </h2>
+                </div>
+                
+                <!-- Dropzone area -->
+                <div id="dropzone" class="upload-dropzone">
+                    <span class="upload-icon">📥</span>
+                    <p class="upload-title">Arrastra tu archivo CSV aquí o haz clic para subir</p>
+                    <p class="upload-desc">Sube un archivo de hasta 300+ registros estructurados con nuestra plantilla</p>
+                    <input type="file" id="csv-file-input" class="hidden-file-input" accept=".csv">
+                </div>
+            </div>
+
+            <!-- Right Panel: Descargas & Acciones de Base de Datos -->
+            <div class="admin-card">
+                <div class="card-header-admin">
+                    <h2 class="card-title-admin">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        Herramientas
+                    </h2>
+                </div>
+
+                <div class="actions-container">
+                    <!-- Download CSV Template -->
+                    <a href="template.csv" download="plantilla_kicks.csv" class="btn-admin btn-secondary-admin">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Descargar Plantilla CSV
+                    </a>
+
+                    <!-- Save & Export dynamic JSON -->
+                    <button id="export-json-btn" class="btn-admin btn-primary-admin">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 4 12 14.01 9 11.01"></polyline><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect></svg>
+                        Guardar y Descargar products.json
+                    </button>
+
+                    <!-- Reset Catalog Database back to default seeds -->
+                    <button id="reset-db-btn" class="btn-admin btn-danger-admin">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Restaurar Valores por Defecto
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Dynamic Product Listing & Table Editor -->
+        <div class="admin-card" style="margin-top: 1rem;">
+            <div class="card-header-admin">
+                <h2 class="card-title-admin" id="table-header-title">Tenis en el Catálogo (0)</h2>
+                <button id="add-product-btn" class="btn-admin btn-primary-admin" style="padding: 0.5rem 1rem; font-size: 0.8rem; border-radius: var(--radius-sm);">
+                    + Agregar Tenis
+                </button>
+            </div>
+
+            <!-- Table section -->
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Modelo</th>
+                            <th>Marca</th>
+                            <th>Género</th>
+                            <th style="display: none;">Tallas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Dynamic rows loaded from localStorage or default-data -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Create/Edit Modal Popup Form -->
+    <div id="product-form-modal" class="modal-overlay">
+        <div class="modal-wrapper" style="max-width: 600px;">
+            <button id="close-form-btn" class="close-modal-btn">&times;</button>
+            
+            <div style="padding: 2rem;">
+                <h2 id="form-modal-title" style="margin-bottom: 1.5rem; font-family: var(--font-heading); font-weight: 700; text-transform: uppercase;">Agregar Nuevo Tenis</h2>
+                
+                <form id="admin-product-form" class="form-grid">
+                    <input type="hidden" id="form-product-id">
+
+                    <div class="form-group form-span-2">
+                        <label for="form-nombre" class="form-label">Nombre del Modelo</label>
+                        <input type="text" id="form-nombre" class="form-control" placeholder="Ej: Nike Air Force 1 Retro" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-marca" class="form-label">Marca</label>
+                        <select id="form-marca" class="form-control" required style="background-color: var(--bg-main);">
+                            <option value="Nike">Nike</option>
+                            <option value="Jordan">Jordan</option>
+                            <option value="Adidas">Adidas</option>
+                            <option value="New Balance">New Balance</option>
+                            <option value="Puma">Puma</option>
+                            <option value="Reebok">Reebok</option>
+                            <option value="Under Armour">Under Armour</option>
+                            <option value="Otra">Otra</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-genero" class="form-label">Género</label>
+                        <select id="form-genero" class="form-control" required style="background-color: var(--bg-main);">
+                            <option value="Hombre">Hombre</option>
+                            <option value="Dama">Dama</option>
+                            <option value="Unisex">Unisex</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-span-2" style="display: none;">
+                        <label for="form-tallas" class="form-label">Tallas Disponibles (Separadas por comas)</label>
+                        <input type="text" id="form-tallas" class="form-control" placeholder="Ej: 36,37,38,39,40" value="N/A">
+                    </div>
+
+                    <div class="form-group form-span-2">
+                        <label for="form-imagen1" class="form-label">Foto Principal (URL o Ruta Local)</label>
+                        <input type="text" id="form-imagen1" class="form-control" placeholder="Ej: images/tenis1-1.jpg" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-imagen2" class="form-label">Foto Secundaria 1 (Opcional)</label>
+                        <input type="text" id="form-imagen2" class="form-control" placeholder="Ej: images/tenis1-2.jpg">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="form-imagen3" class="form-label">Foto Secundaria 2 (Opcional)</label>
+                        <input type="text" id="form-imagen3" class="form-control" placeholder="Ej: images/tenis1-3.jpg">
+                    </div>
+
+                    <div class="form-group form-span-2">
+                        <label for="form-descripcion" class="form-label">Descripción</label>
+                        <textarea id="form-descripcion" class="form-control" placeholder="Ej: Excelente calidad de materiales..."></textarea>
+                    </div>
+
+                    <div class="form-span-2" style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button type="submit" class="btn-admin btn-primary-admin" style="flex-grow: 1;">Guardar Tenis</button>
+                        <button type="button" id="cancel-form-btn" class="btn-admin btn-secondary-admin">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <!-- CSV Parser PapaParse CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Default Data seeds fallback -->
+    <script src="js/default-data.js"></script>
+    <!-- Admin logic -->
+    <script src="js/admin.js"></script>
+</body>
+</html>

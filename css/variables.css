@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    /* Color Palette */
+    --bg-main: #08070b;
+    --bg-surface: #121016;
+    --bg-surface-hover: #1b1822;
+    --bg-card: rgba(20, 18, 26, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-color-hover: rgba(255, 31, 63, 0.3);
+    
+    /* Accents */
+    --accent: #ff1f3f; /* Premium Crimson Red */
+    --accent-hover: #d61330;
+    --accent-glow: rgba(255, 31, 63, 0.25);
+    --accent-gradient: linear-gradient(135deg, #ff1f3f 0%, #ff5e62 100%);
+    
+    /* Genders */
+    --color-hombre: #ff4d58; /* rojo brillante */
+    --color-dama: #ff1f3f; /* rojo carmesí (accent) */
+    --color-unisex: #ff5e62; /* rojo degradado */
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #9ea2b0;
+    --text-muted: #646876;
+    --text-dark: #08070b;
+
+    /* Fonts */
+    --font-heading: 'Outfit', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Spacing & Borders */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+    --shadow-accent: 0 0 20px rgba(255, 31, 63, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    line-height: 1.5;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+    background: #252230;
+    border-radius: var(--radius-sm);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}

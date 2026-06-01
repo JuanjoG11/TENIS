@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TENNIS Y MÁS - Catálogo de Tenis</title>
+    <meta name="description" content="Encuentra las mejores marcas de tenis para hombre y dama. Catálogo interactivo con atención directa por WhatsApp.">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/client.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="header-container">
+            <div class="logo-wrapper">
+                <a href="/" id="logo-btn" class="logo-link">
+                    <img src="img/logo.png" alt="Tennis y Más" class="logo-img">
+                    <h1 class="logo-title">CATÁLOGO DE TENIS</h1>
+                </a>
+            </div>
+            
+            <div class="search-box">
+                <span class="search-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <input type="text" id="search-input" class="search-input" placeholder="Buscar tenis por nombre, marca o estilo...">
+            </div>
+        </div>
+    </header>
+    
+
+    <!-- Subheader Filter & Category Tabs -->
+    <div class="filter-tabs-wrapper">
+        <div class="filter-tabs-container">
+            <div class="gender-tabs">
+                <button class="tab-btn active" data-category="all">Todos</button>
+                <button class="tab-btn" data-category="Hombre">Hombre</button>
+                <button class="tab-btn" data-category="Dama">Dama</button>
+            </div>
+            
+            <button id="filter-toggle-btn" class="filter-toggle-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
+                Filtros Avanzados
+            </button>
+        </div>
+    </div>
+
+    <!-- Collapsible Filters Drawer -->
+    <div id="filters-drawer" class="filters-drawer">
+        <div class="filters-grid">
+            <!-- Brand Filter -->
+            <div class="filter-group">
+                <span class="filter-title">Marcas</span>
+                <div id="brands-container" class="brands-container">
+                    <!-- Dynamic brands load -->
+                </div>
+            </div>
+
+            <!-- Size Filter -->
+            <div class="filter-group" style="display: none;">
+                <span class="filter-title">Filtrar por Talla</span>
+                <div id="sizes-container" class="sizes-grid">
+                    <!-- Dynamic sizes load -->
+                </div>
+            </div>
+
+            <!-- Clear Action -->
+            <div class="filter-group">
+                <span class="filter-title">Acciones</span>
+                <button id="reset-filters-btn" class="reset-filters-btn">Limpiar Todos los Filtros</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Grid Section -->
+    <main>
+        <div class="results-info">
+            <span id="results-count" class="results-count">Cargando catálogo...</span>
+        </div>
+
+        <div id="product-grid" class="product-grid">
+            <!-- Dynamic product cards load -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 <strong>TENNIS Y MÁS</strong>. Todos los derechos reservados.</p>
+        <p>¿Tienes dudas? <a href="https://wa.me/573204961453" target="_blank">Escríbenos directamente</a></p>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/573204961453?text=Hola%20KICKS,%20estoy%20viendo%20el%20cat%C3%A1logo%20y%20me%20gustar%C3%ADa%20hacer%20una%20consulta." class="floating-whatsapp" target="_blank" aria-label="Escríbenos por WhatsApp">
+        <svg viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.733-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.451 5.437.002 9.861-4.416 9.864-9.852.002-2.632-1.023-5.105-2.887-6.974-1.866-1.869-4.346-2.9-6.98-2.901-5.441 0-9.866 4.417-9.869 9.856-.001 1.702.463 3.361 1.343 4.828l-.997 3.646 3.799-.996zm11.233-6.006c-.301-.15-1.78-.879-2.056-.979-.275-.1-.475-.15-.675.15-.2.3-.775.979-.95 1.179-.175.2-.35.225-.65.075-.3-.15-1.265-.467-2.41-1.485-.89-.793-1.49-1.773-1.665-2.073-.175-.3-.019-.462.13-.611.135-.135.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.589-.493-.51-.675-.52-.172-.007-.368-.009-.565-.009-.196 0-.518.074-.789.374-.271.3-1.035 1.012-1.035 2.468s1.056 2.855 1.202 3.053c.146.198 2.078 3.174 5.034 4.449.703.303 1.252.484 1.677.619.707.225 1.35.193 1.86.117.568-.085 1.78-.727 2.03-1.429.25-.701.25-1.3.175-1.429-.075-.13-.275-.205-.575-.355z"/>
+        </svg>
+    </a>
+
+    <!-- Product Details Modal Overlay -->
+    <div id="product-modal" class="modal-overlay">
+        <div class="modal-wrapper">
+            <button id="close-modal-btn" class="close-modal-btn" aria-label="Cerrar modal">&times;</button>
+            
+            <div class="modal-grid">
+                <!-- Left: 3-Image Carousel -->
+                <div class="modal-carousel-section">
+                    <div id="carousel-track" class="carousel-track">
+                        <!-- Dynamic slides load -->
+                    </div>
+                    
+                    <!-- Navigation Arrows -->
+                    <button class="carousel-arrow arrow-left" id="prev-btn" aria-label="Imagen anterior">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <button class="carousel-arrow arrow-right" id="next-btn" aria-label="Siguiente imagen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    
+                    <!-- Slide Indicators -->
+                    <div id="carousel-dots" class="carousel-dots">
+                        <!-- Dynamic dots load -->
+                    </div>
+                </div>
+                
+                <!-- Right: Product Information & Ordering -->
+                <div class="modal-details">
+                    <div>
+                        <span id="modal-brand" class="modal-brand">MARCA</span>
+                        <h2 id="modal-title" class="modal-title">Nombre del Modelo</h2>
+                        <span id="modal-gender" class="gender-badge modal-gender">HOMBRE</span>
+                    </div>
+
+                    <div>
+                        <h3 class="modal-section-title">Descripción</h3>
+                        <p id="modal-description" class="modal-description">Cargando descripción del producto...</p>
+                    </div>
+
+                    <div style="display: none;">
+                        <h3 class="modal-section-title">Tallas Disponibles</h3>
+                        <div id="modal-sizes" class="modal-sizes-grid">
+                            <!-- Dynamic sizes load -->
+                        </div>
+                        <div id="size-error" class="size-error-msg">Por favor, selecciona una talla antes de continuar.</div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <button id="whatsapp-order-btn" class="whatsapp-btn">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.733-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.451 5.437.002 9.861-4.416 9.864-9.852.002-2.632-1.023-5.105-2.887-6.974-1.866-1.869-4.346-2.9-6.98-2.901-5.441 0-9.866 4.417-9.869 9.856-.001 1.702.463 3.361 1.343 4.828l-.997 3.646 3.799-.996zm11.233-6.006c-.301-.15-1.78-.879-2.056-.979-.275-.1-.475-.15-.675.15-.2.3-.775.979-.95 1.179-.175.2-.35.225-.65.075-.3-.15-1.265-.467-2.41-1.485-.89-.793-1.49-1.773-1.665-2.073-.175-.3-.019-.462.13-.611.135-.135.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.244-.589-.493-.51-.675-.52-.172-.007-.368-.009-.565-.009-.196 0-.518.074-.789.374-.271.3-1.035 1.012-1.035 2.468s1.056 2.855 1.202 3.053c.146.198 2.078 3.174 5.034 4.449.703.303 1.252.484 1.677.619.707.225 1.35.193 1.86.117.568-.085 1.78-.727 2.03-1.429.25-.701.25-1.3.175-1.429-.075-.13-.275-.205-.575-.355z"/>
+                        </svg>
+                        Preguntar por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data & Application Logic Scripts -->
+    <script src="js/default-data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
