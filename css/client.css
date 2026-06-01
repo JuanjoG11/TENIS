@@ -168,44 +168,10 @@ header {
     background: var(--accent);
 }
 
-.filter-toggle-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 0.6rem 1.2rem;
-    border-radius: 30px;
-    font-family: var(--font-heading);
-    font-weight: 500;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: var(--transition-smooth);
-}
-
-.filter-toggle-btn:hover, .filter-toggle-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--bg-surface-hover);
-}
+.filter-toggle-btn { display: none !important; }
 
 /* Collapsible Filter Sidebar/Drawer */
-.filters-drawer {
-    max-height: 0;
-    overflow: hidden;
-    background: var(--bg-surface);
-    border-bottom: 0px solid var(--border-color);
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
-    padding: 0 1.5rem;
-}
-
-.filters-drawer.open {
-    max-height: 500px;
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    overflow-y: auto;
-}
+.filters-drawer { display: none !important; }
 
 .filters-grid {
     max-width: 1200px;

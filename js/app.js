@@ -25,11 +25,6 @@ const WHATSAPP_PHONE = '573204961453';
 const productGrid = document.getElementById('product-grid');
 const resultsCount = document.getElementById('results-count');
 const searchInput = document.getElementById('search-input');
-const filterToggleBtn = document.getElementById('filter-toggle-btn');
-const filtersDrawer = document.getElementById('filters-drawer');
-const brandsContainer = document.getElementById('brands-container');
-const sizesContainer = document.getElementById('sizes-container');
-const resetFiltersBtn = document.getElementById('reset-filters-btn');
 const logoBtn = document.getElementById('logo-btn');
 
 // Modal DOM Elements
@@ -52,7 +47,6 @@ const nextBtn = document.getElementById('next-btn');
 // 1. Initial Load & Database Parsing
 window.addEventListener('DOMContentLoaded', async () => {
     await loadProducts();
-    initFilterUI();
     renderProducts();
     setupEventListeners();
 });
@@ -90,44 +84,7 @@ async function loadProducts() {
     filteredProducts = [...products];
 }
 
-// 2. Generate Filter UI elements dynamically
-function initFilterUI() {
-    // Extract unique brands
-    const brands = [...new Set(products.map(p => p.marca))].sort();
-    brandsContainer.innerHTML = '';
-    brands.forEach(brand => {
-        const pill = document.createElement('span');
-        pill.className = 'brand-pill';
-        pill.textContent = brand;
-        pill.dataset.brand = brand;
-        pill.addEventListener('click', () => toggleBrandFilter(brand, pill));
-        brandsContainer.appendChild(pill);
-    });
-
-    // Extract and sort unique sizes
-    const allSizesSet = new Set();
-    products.forEach(p => {
-        if (p.tallas) {
-            p.tallas.split(',').forEach(s => {
-                const cleanSize = s.trim();
-                if (cleanSize) allSizesSet.add(cleanSize);
-            });
-        }
-    });
-    
-    // Sort sizes numerically
-    const sortedSizes = [...allSizesSet].sort((a, b) => parseFloat(a) - parseFloat(b));
-    
-    sizesContainer.innerHTML = '';
-    sortedSizes.forEach(size => {
-        const pill = document.createElement('span');
-        pill.className = 'size-pill';
-        pill.textContent = size;
-        pill.dataset.size = size;
-        pill.addEventListener('click', () => toggleSizeFilter(size, pill));
-        sizesContainer.appendChild(pill);
-    });
-}
+// Advanced filters UI removed to improve responsiveness
 
 // 3. Render Cards Grid
 function renderProducts() {
@@ -205,28 +162,7 @@ function renderProducts() {
     });
 }
 
-// 4. Filters Interaction Logic
-function toggleBrandFilter(brand, element) {
-    if (activeBrands.has(brand)) {
-        activeBrands.delete(brand);
-        element.classList.remove('active');
-    } else {
-        activeBrands.add(brand);
-        element.classList.add('active');
-    }
-    renderProducts();
-}
-
-function toggleSizeFilter(size, element) {
-    if (activeSizes.has(size)) {
-        activeSizes.delete(size);
-        element.classList.remove('active');
-    } else {
-        activeSizes.add(size);
-        element.classList.add('active');
-    }
-    renderProducts();
-}
+// Advanced filter interaction removed (brand/size pills no longer rendered)
 
 function clearAllFilters() {
     searchQuery = '';
@@ -372,11 +308,11 @@ function handleGesture() {
 // 6. WhatsApp Link Generation
 function processWhatsAppOrder() {
     // Format custom message text
-    const textMessage = `Hola KICKS! Me interesa mucho este modelo de tenis:\n\n` + 
+    const textMessage = `Hola Tennis y Más! Me interesa comprar este modelo de tenis:\n\n` + 
                        `👟 *Modelo*: ${currentProduct.nombre}\n` +
                        `🏷️ *Marca*: ${currentProduct.marca}\n` +
                        `🚻 *Género*: ${currentProduct.genero}\n\n` +
-                       `¿Me confirmas precio, disponibilidad y métodos de entrega por favor? ⚡`;
+                       `¿Me confirmas precio y disponibilidad para concretar la compra, por favor? ⚡`;
     
     const encodedText = encodeURIComponent(textMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedText}`;
