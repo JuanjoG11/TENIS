@@ -340,14 +340,7 @@ function setupEventListeners() {
         renderProducts();
     });
 
-    // Filter drawer toggle
-    filterToggleBtn.addEventListener('click', () => {
-        const isOpen = filtersDrawer.classList.toggle('open');
-        filterToggleBtn.classList.toggle('active', isOpen);
-    });
-
-    // Clear filters button click
-    resetFiltersBtn.addEventListener('click', clearAllFilters);
+    // Advanced filters removed: no drawer toggle or reset button listeners
 
     // Header Logo clicking restores to base state
     logoBtn.addEventListener('click', () => {
