@@ -52,6 +52,62 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadProducts() {
+    // Attempt to load images directly from Supabase Storage first (using supabase-js client)
+    try {
+        const SUPABASE_URL = 'https://vomghggqwtbwcvjfroev.supabase.co';
+        const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvbWdoZ2dxd3Rid2N2amZyb2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjIyNjksImV4cCI6MjA5NTk5ODI2OX0.0f1p00Lsi6EG9izXVmw_awAgIxXs2XOl_GPd5SnFlV4';
+        const BUCKET = 'tennis';
+
+        if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+            throw new Error('Supabase client not available');
+        }
+
+        const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+        async function listFromStorage(prefix) {
+            try {
+                const options = { limit: 2000, offset: 0, sortBy: { column: 'name', order: 'asc' } };
+                const resp = await sb.storage.from(BUCKET).list(prefix || '', options);
+                if (resp.error) {
+                    console.warn('Supabase list error for', prefix, resp.error.message);
+                    return [];
+                }
+                const data = resp.data || [];
+                const items = [];
+                for (let i = 0; i < data.length; i++) {
+                    const file = data[i];
+                    if (file.id === null) continue; // folder
+                    if (!file.name || file.name.startsWith('.')) continue;
+                    const path = prefix ? (prefix + '/' + file.name) : file.name;
+                    const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+                    items.push({ name: file.name, src: `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${encodedPath}` });
+                }
+                return items;
+            } catch (err) {
+                console.warn('listFromStorage failed', err);
+                return [];
+            }
+        }
+
+        const hombres = await listFromStorage('hombre');
+        const hombres2 = hombres.length === 0 ? await listFromStorage('Hombre') : hombres;
+        const damas = await listFromStorage('dama');
+        const damas2 = damas.length === 0 ? await listFromStorage('Dama') : damas;
+
+        const combined = [];
+        let idCounter = 1;
+        hombres2.forEach(h => combined.push({ id: `s${idCounter++}`, nombre: '', marca: '', genero: 'Hombre', imagen1: h.src }));
+        damas2.forEach(d => combined.push({ id: `s${idCounter++}`, nombre: '', marca: '', genero: 'Dama', imagen1: d.src }));
+
+        if (combined.length > 0) {
+            console.log('Supabase: encontrados', combined.length, 'objetos. Muestra:', combined.slice(0,6));
+            products = combined;
+            filteredProducts = [...products];
+            return;
+        }
+    } catch (e) {
+        console.warn('No se pudieron listar imágenes desde Supabase (supabase-js), siguiendo con productos locales.', e.message || e);
+    }
     // 1. Tries to read from localStorage first (for real-time editing experience)
     const localData = localStorage.getItem('kicks_products');
     if (localData) {
@@ -133,31 +189,55 @@ function renderProducts() {
         return;
     }
 
-    // Render each item
+    // Render each item with image error handling
     filteredProducts.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.addEventListener('click', () => openModal(product));
 
-        // Gender Badge CSS Class
-        const genderClass = `badge-${product.genero.toLowerCase()}`;
-        
-        card.innerHTML = `
-            <div class="card-img-wrapper">
-                <img src="${product.imagen1}" alt="${product.nombre}" class="card-img" loading="lazy">
-                <span class="gender-badge ${genderClass}">${product.genero}</span>
-            </div>
-            <div class="card-body">
-                <span class="card-brand">${product.marca}</span>
-                <h2 class="card-title">${product.nombre}</h2>
-            </div>
-            <div class="card-footer">
-                <button class="card-action-btn">
-                    Ver Detalles
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </button>
-            </div>
-        `;
+        const imgWrapper = document.createElement('div');
+        imgWrapper.className = 'card-img-wrapper';
+
+        const img = document.createElement('img');
+        img.className = 'card-img';
+        img.loading = 'lazy';
+        img.alt = product.nombre || '';
+        img.src = product.imagen1 || '';
+        // Log each image src for debugging
+        console.log('Render image src:', img.src);
+        // On error, hide broken icon and use 1x1 placeholder
+        img.onerror = () => {
+            console.error('Image failed to load:', img.src);
+            img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
+            img.style.display = 'none';
+        };
+
+        imgWrapper.appendChild(img);
+
+        const genderClass = `badge-${(product.genero || '').toLowerCase()}`;
+        const badge = document.createElement('span');
+        badge.className = `gender-badge ${genderClass}`;
+        badge.textContent = product.genero || '';
+        imgWrapper.appendChild(badge);
+
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body';
+        const brandSpan = document.createElement('span');
+        brandSpan.className = 'card-brand';
+        brandSpan.textContent = product.marca || '';
+        const titleH2 = document.createElement('h2');
+        titleH2.className = 'card-title';
+        titleH2.textContent = product.nombre || '';
+        cardBody.appendChild(brandSpan);
+        cardBody.appendChild(titleH2);
+
+        const cardFooter = document.createElement('div');
+        cardFooter.className = 'card-footer';
+
+        card.appendChild(imgWrapper);
+        card.appendChild(cardBody);
+        card.appendChild(cardFooter);
+
         productGrid.appendChild(card);
     });
 }

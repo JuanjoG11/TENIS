@@ -9,6 +9,7 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="css/variables.css">
     <link rel="stylesheet" href="css/client.css">
+
 </head>
 <body>
 
@@ -49,7 +50,8 @@
 
     <!-- Product Grid Section -->
     <main>
-        <div class="results-info">
+        <div id="gallery-m" class="gallery-m"></div>
+    <div id="gallery-f" class="gallery-f" style="display:none;"></div>
             <span id="results-count" class="results-count">Cargando catálogo...</span>
         </div>
 
@@ -57,6 +59,11 @@
             <!-- Dynamic product cards load -->
         </div>
     </main>
+<!-- Lightbox for Supabase images -->
+<div id="lightbox" class="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);justify-content:center;align-items:center;">
+    <img id="lightboxImg" src="" alt="" style="max-width:90%;max-height:90%;border-radius:8px;">
+    <button id="closeBtn" style="position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;">&times;</button>
+</div>
 
     <!-- Footer -->
     <footer>
@@ -132,6 +139,12 @@
 
     <!-- Data & Application Logic Scripts -->
     <script src="js/default-data.js"></script>
+
+    <!-- Supabase CDN (carga el global window.supabase) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Application (loads gallery via Supabase) -->
     <script src="js/app.js"></script>
+
 </body>
 </html>
