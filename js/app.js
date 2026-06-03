@@ -174,8 +174,10 @@ function renderProducts() {
         return matchesSearch && matchesCategory && matchesBrand && matchesSize;
     });
 
-    // Update Result Text
-    resultsCount.textContent = `Mostrando ${filteredProducts.length} modelo${filteredProducts.length !== 1 ? 's' : ''}`;
+    // Update Result Text (if element exists)
+    if (resultsCount) {
+        resultsCount.textContent = `Mostrando ${filteredProducts.length} modelo${filteredProducts.length !== 1 ? 's' : ''}`;
+    }
 
     if (filteredProducts.length === 0) {
         productGrid.innerHTML = `
