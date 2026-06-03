@@ -123,11 +123,11 @@ header {
 /* Sub-header Filter Tabs */
 .filter-tabs-wrapper {
     background: var(--bg-surface);
-    padding: 0.8rem 1.5rem;
+    padding: 0.6rem 1rem;
     border-bottom: 1px solid var(--border-color);
     position: sticky;
-    top: 75px; /* Offset for header */
-    z-index: 90;
+    top: 64px; /* keep visible under header */
+    z-index: 95;
 }
 
 .filter-tabs-container {
@@ -804,6 +804,24 @@ footer a {
 
 @media (max-width: 699px) {
     .featured-bubble { font-size: 0.85rem; max-width: 90%; padding: 0.45rem 0.9rem; }
+}
+
+/* Inline tap notice shown next to gender tabs */
+.tap-notice-inline {
+    display: inline-block;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    font-weight: 700;
+    z-index: 110;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+    letter-spacing: 0.3px;
+    font-size: 0.95rem;
+}
+
+@media (max-width: 699px) {
+    .tap-notice-inline { font-size: 0.88rem; padding: 0.3rem 0.7rem; }
 }
 
 /* Mobile tweaks: reduce paddings and logo size to fit more products above the fold */

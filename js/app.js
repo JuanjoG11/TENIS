@@ -3,7 +3,7 @@
 // Application State
 let products = [];
 let filteredProducts = [];
-let activeCategory = 'all';
+let activeCategory = 'Hombre';
 let searchQuery = '';
 let activeBrands = new Set();
 let activeSizes = new Set();
@@ -274,15 +274,15 @@ function renderProducts() {
 
 function clearAllFilters() {
     searchQuery = '';
-    searchInput.value = '';
+    if (searchInput) searchInput.value = '';
     activeBrands.clear();
     activeSizes.clear();
-    activeCategory = 'all';
+    activeCategory = 'Hombre';
     
-    // Clear Category Tabs styling
-    document.querySelectorAll('.gender-tabs .tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.category === 'all');
-    });
+    // Reset Category Tabs styling: make 'Hombre' active by default
+    document.querySelectorAll('.gender-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+    const firstBtn = document.querySelector('.gender-tabs .tab-btn[data-category="Hombre"]');
+    if (firstBtn) firstBtn.classList.add('active');
 
     // Clear Pill styling
     document.querySelectorAll('.brand-pill').forEach(p => p.classList.remove('active'));
@@ -442,11 +442,13 @@ function setupEventListeners() {
         });
     });
 
-    // Real-time Text Search input
-    searchInput.addEventListener('input', (e) => {
-        searchQuery = e.target.value.trim();
-        renderProducts();
-    });
+    // Real-time Text Search input (only if present)
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.trim();
+            renderProducts();
+        });
+    }
 
     // Advanced filters removed: no drawer toggle or reset button listeners
 
