@@ -264,8 +264,8 @@ header {
 /* Product Section & Grid */
 main {
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    margin: 1rem auto; /* reduced top/bottom spacing for denser view */
+    padding: 0 1rem;
 }
 
 .results-info {
@@ -282,26 +282,23 @@ main {
 
 .product-grid {
     display: grid;
-    gap: 0.4rem;
-    grid-template-columns: 1fr;
+    gap: 0.5rem; /* small gap to maximize items per view */
+    grid-template-columns: repeat(2, 1fr); /* Mobile default: 2 columns */
 }
 
-@media (min-width: 900px) {
-    /* Desktop: 4 cards per row starting at 900px for tighter layouts */
-    .product-grid {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
-@media (min-width: 900px) {
+/* Tablet: 3 columns */
+@media (min-width: 700px) {
     .product-grid {
         grid-template-columns: repeat(3, 1fr);
+        gap: 0.6rem;
     }
 }
 
+/* Desktop: 4+ columns */
 @media (min-width: 1200px) {
-    /* Desktop: 4 cards per row */
     .product-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
     }
 }
 
@@ -327,7 +324,7 @@ main {
 .card-img-wrapper {
     position: relative;
     width: 100%;
-    padding-top: 65%; /* compact vertical aspect to fit more per screen */
+    padding-top: 56%; /* slightly shorter to show more items per viewport */
     background: linear-gradient(180deg, rgba(10,10,10,1) 0%, rgba(6,6,6,1) 100%);
     overflow: hidden;
 }
@@ -785,4 +782,13 @@ footer a {
     color: var(--accent);
     text-decoration: none;
     font-weight: 500;
+}
+
+/* Mobile tweaks: reduce paddings and logo size to fit more products above the fold */
+@media (max-width: 699px) {
+    header { padding: 0.6rem 0.8rem; }
+    .header-container { gap: 0.5rem; }
+    .logo-img { height: 42px; }
+    main { margin: 0.6rem auto; padding: 0 0.6rem; }
+    .search-input { padding: 0.5rem 1rem 0.5rem 2.4rem; font-size: 0.9rem; }
 }

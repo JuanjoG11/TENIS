@@ -145,7 +145,7 @@ async function loadProducts() {
 // 3. Render Cards Grid
 function renderProducts() {
     productGrid.innerHTML = '';
-    
+
     // Apply filters
     filteredProducts = products.filter(p => {
         // Search Filter
@@ -189,8 +189,11 @@ function renderProducts() {
         return;
     }
 
-    // Render each item with image error handling
-    filteredProducts.forEach(product => {
+    // Render items in batches to avoid blocking the main thread when there are many products
+    const batchSize = 48; // initial visible items
+    const laterBatchSize = 60; // subsequent batches
+
+    function createCardElement(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
         card.addEventListener('click', () => openModal(product));
@@ -203,11 +206,7 @@ function renderProducts() {
         img.loading = 'lazy';
         img.alt = product.nombre || '';
         img.src = product.imagen1 || '';
-        // Log each image src for debugging
-        console.log('Render image src:', img.src);
-        // On error, hide broken icon and use 1x1 placeholder
         img.onerror = () => {
-            console.error('Image failed to load:', img.src);
             img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACw=';
             img.style.display = 'none';
         };
@@ -238,8 +237,37 @@ function renderProducts() {
         card.appendChild(cardBody);
         card.appendChild(cardFooter);
 
-        productGrid.appendChild(card);
-    });
+        return card;
+    }
+
+    // Synchronously render the first small batch for immediate UX
+    const initial = filteredProducts.slice(0, batchSize);
+    initial.forEach(p => productGrid.appendChild(createCardElement(p)));
+
+    // Schedule remaining items in background batches
+    const remaining = filteredProducts.slice(batchSize);
+    if (remaining.length > 0) {
+        let idx = 0;
+        function renderNextBatch() {
+            const chunk = remaining.slice(idx, idx + laterBatchSize);
+            chunk.forEach(p => productGrid.appendChild(createCardElement(p)));
+            idx += laterBatchSize;
+            if (idx < remaining.length) {
+                // Use requestIdleCallback if available, otherwise fallback to setTimeout
+                if ('requestIdleCallback' in window) {
+                    requestIdleCallback(renderNextBatch, { timeout: 500 });
+                } else {
+                    setTimeout(renderNextBatch, 200);
+                }
+            }
+        }
+        // kick off next batches after a short delay so initial paint stays snappy
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(renderNextBatch, { timeout: 500 });
+        } else {
+            setTimeout(renderNextBatch, 300);
+        }
+    }
 }
 
 // Advanced filter interaction removed (brand/size pills no longer rendered)
