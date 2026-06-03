@@ -303,7 +303,8 @@ function openModal(product) {
     // Text & Details bindings
     modalBrand.textContent = product.marca;
     modalTitle.textContent = product.nombre;
-    modalDescription.textContent = product.descripcion || 'Sin descripción detallada por el momento.';
+    // Replace full description with a concise prompt asking for the buyer's size
+    modalDescription.textContent = '¿Cuál es tu talla? Responde con la talla que deseas para que confirmemos disponibilidad.';
     
     // Gender badge inside modal
     modalGender.textContent = product.genero;
@@ -416,11 +417,15 @@ function handleGesture() {
 // 6. WhatsApp Link Generation
 function processWhatsAppOrder() {
     // Format custom message text
-    const textMessage = `Hola Tennis y Más! Me interesa comprar este modelo de tenis:\n\n` + 
-                       `👟 *Modelo*: ${currentProduct.nombre}\n` +
-                       `🏷️ *Marca*: ${currentProduct.marca}\n` +
-                       `🚻 *Género*: ${currentProduct.genero}\n\n` +
-                       `¿Me confirmas precio y disponibilidad para concretar la compra, por favor? ⚡`;
+    // Build a message that allows your team to identify the style even if it has no name
+    const textMessage = `Hola Tennis y Más! Me interesa comprar este modelo de tenis.\n\n` +
+                       `ID: ${currentProduct.id || 'N/A'}\n` +
+                       `Marca: ${currentProduct.marca || 'N/A'}\n` +
+                       `Género: ${currentProduct.genero || 'N/A'}\n` +
+                       `Imagen: ${currentProduct.imagen1 || 'N/A'}\n\n` +
+                       (selectedSize ? `Talla solicitada: ${selectedSize}\n\n` : '') +
+                       `Nota: Este producto puede no tener nombre; por favor identifiquen el estilo por el ID o la imagen.\n\n` +
+                       `¿Me confirman precio y disponibilidad, por favor? Gracias! ⚡`;
     
     const encodedText = encodeURIComponent(textMessage);
     const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedText}`;
