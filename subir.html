@@ -451,10 +451,11 @@
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────
-const ADMIN_PASSWORD = 'kicks2024';       // ← cambiá esto cuando quieras
-const IMGBB_API_KEY  = '689708713d8e566d997e8d7b6b93f68b';
-const STORAGE_KEY    = 'kicks_imgbb_photos'; // localStorage key
-const SESSION_KEY    = 'kicks_admin_auth';
+const ADMIN_PASSWORD  = 'kicks2024';       // ← cambiá esto cuando quieras
+const IMGBB_API_KEY   = '689708713d8e566d997e8d7b6b93f68b';
+const JSONBIN_KEY     = '$2a$10$wQWrp4VBBWuuUfN5akS.u.1M2Q4TrIfX0En42Qh3xg0l5k2tc/OTK';
+const JSONBIN_BIN_ID  = '6a456ed2da38895dfe1e15ce';  // bin fijo, no depende de localStorage
+const SESSION_KEY     = 'kicks_admin_auth';
 
 // ── STATE ─────────────────────────────────────────────────
 let selectedGender = 'hombre';
@@ -599,6 +600,26 @@ function updateUploadBtn() {
     }
 }
 
+// ── JSONBIN HELPERS ───────────────────────────────────────
+async function readBin() {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+        headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    const json = await res.json();
+    return json.record || [];
+}
+
+async function writeBin(data) {
+    await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_KEY
+        },
+        body: JSON.stringify(data)
+    });
+}
+
 // ── UPLOAD ────────────────────────────────────────────────
 uploadBtn.addEventListener('click', uploadAll);
 
@@ -612,37 +633,38 @@ async function uploadAll() {
     let done = 0, errors = 0;
     const total = pendingFiles.length;
 
-    // Load existing saved photos
-    let savedPhotos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    // Load existing photos from JSONBin
+    let savedPhotos = [];
+    try {
+        savedPhotos = await readBin();
+    } catch(e) {
+        console.warn('No se pudo leer JSONBin, empezando lista vacía', e);
+    }
 
     for (let i = 0; i < total; i++) {
         const f = pendingFiles[i];
         setFileStatus(i, 'uploading', '⬆ Subiendo…');
 
         try {
-            // Convert file to base64
+            // 1. Upload to ImgBB
             const base64 = await toBase64(f);
-
-            // Upload to ImgBB
             const formData = new FormData();
-            formData.append('image', base64.split(',')[1]); // strip data:...;base64,
+            formData.append('image', base64.split(',')[1]);
 
             const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
                 method: 'POST',
                 body: formData
             });
-
             const json = await res.json();
-
             if (!json.success) throw new Error(json.error?.message || 'Error en ImgBB');
 
             const url = json.data.url;
 
-            // Save to localStorage with gender tag
-            savedPhotos.push({ url, genero: selectedGender, ts: Date.now() });
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPhotos));
+            // 2. Save URL + gender to JSONBin list
+            savedPhotos.unshift({ url, genero: selectedGender, ts: Date.now() });
+            await writeBin(savedPhotos);
 
-            // Show preview thumbnail in the file item
+            // Update thumb to real URL
             const thumb = document.querySelector(`#fi-${i} .file-thumb`);
             if (thumb) thumb.src = url;
 
@@ -658,11 +680,9 @@ async function uploadAll() {
         progressBar.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
     }
 
-    // Summary toast
     if (done)   toast(`${done} foto${done > 1 ? 's' : ''} subida${done > 1 ? 's' : ''} correctamente 🎉`);
     if (errors) toast(`${errors} foto${errors > 1 ? 's' : ''} fallaron`, true);
 
-    // Reset
     pendingFiles = [];
     updateUploadBtn();
     setTimeout(() => {
