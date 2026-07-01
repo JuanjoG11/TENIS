@@ -388,3 +388,170 @@ function setupAdminEventListeners() {
         }
     });
 }
+
+
+// ─── PHOTO UPLOADER TO SUPABASE STORAGE ───────────────────────────────────────
+
+const SUPABASE_URL  = 'https://vomghggqwtbwcvjfroev.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvbWdoZ2dxd3Rid2N2amZyb2V2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MjIyNjksImV4cCI6MjA5NTk5ODI2OX0.0f1p00Lsi6EG9izXVmw_awAgIxXs2XOl_GPd5SnFlV4';
+const BUCKET        = 'tennis';
+
+let selectedGender    = 'hombre';   // 'hombre' | 'dama'
+let selectedPhotoFiles = [];        // FileList converted to array
+
+function initPhotoUploader() {
+    const genderBtns    = document.querySelectorAll('.photo-gender-btn');
+    const photoDropzone = document.getElementById('photo-dropzone');
+    const photoInput    = document.getElementById('photo-file-input');
+    const uploadBtn     = document.getElementById('photo-upload-btn');
+    const uploadList    = document.getElementById('photo-upload-list');
+
+    if (!photoDropzone) return;
+
+    // Gender toggle
+    genderBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            genderBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedGender = btn.dataset.gender;
+        });
+    });
+
+    // Click on dropzone opens file picker
+    photoDropzone.addEventListener('click', () => photoInput.click());
+
+    // Drag & Drop
+    photoDropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        photoDropzone.classList.add('dragover');
+    });
+    photoDropzone.addEventListener('dragleave', () => photoDropzone.classList.remove('dragover'));
+    photoDropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoDropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handlePhotoSelection(e.dataTransfer.files);
+        }
+    });
+
+    // File input change
+    photoInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            handlePhotoSelection(e.target.files);
+            photoInput.value = '';
+        }
+    });
+
+    // Upload button
+    uploadBtn.addEventListener('click', uploadPhotosToSupabase);
+}
+
+function handlePhotoSelection(fileList) {
+    selectedPhotoFiles = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+
+    if (selectedPhotoFiles.length === 0) {
+        showToast('Selecciona al menos una imagen (JPG, PNG, WEBP).', 'error');
+        return;
+    }
+
+    const uploadList = document.getElementById('photo-upload-list');
+    const uploadBtn  = document.getElementById('photo-upload-btn');
+
+    uploadList.innerHTML = '';
+    uploadList.style.display = 'flex';
+
+    selectedPhotoFiles.forEach((file, idx) => {
+        const item = document.createElement('div');
+        item.className = 'photo-upload-item';
+        item.id = `upload-item-${idx}`;
+
+        const thumb = document.createElement('img');
+        thumb.className = 'upload-thumb';
+        thumb.src = URL.createObjectURL(file);
+
+        const name = document.createElement('span');
+        name.className = 'upload-filename';
+        name.textContent = file.name;
+
+        const status = document.createElement('span');
+        status.className = 'upload-status pending';
+        status.id = `upload-status-${idx}`;
+        status.textContent = 'Pendiente';
+
+        item.appendChild(thumb);
+        item.appendChild(name);
+        item.appendChild(status);
+        uploadList.appendChild(item);
+    });
+
+    uploadBtn.disabled = false;
+    uploadBtn.textContent = `Subir ${selectedPhotoFiles.length} foto${selectedPhotoFiles.length > 1 ? 's' : ''} → ${selectedGender === 'hombre' ? 'Hombre' : 'Dama'}`;
+}
+
+async function uploadPhotosToSupabase() {
+    if (selectedPhotoFiles.length === 0) return;
+
+    const uploadBtn = document.getElementById('photo-upload-btn');
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Subiendo...';
+
+    let successCount = 0;
+    let errorCount   = 0;
+
+    for (let i = 0; i < selectedPhotoFiles.length; i++) {
+        const file       = selectedPhotoFiles[i];
+        const statusEl   = document.getElementById(`upload-status-${i}`);
+        statusEl.className = 'upload-status uploading';
+        statusEl.textContent = 'Subiendo...';
+
+        const folder    = selectedGender; // 'hombre' or 'dama'
+        const fileName  = `${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+        const filePath  = `${folder}/${fileName}`;
+
+        try {
+            const res = await fetch(
+                `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filePath}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${SUPABASE_ANON}`,
+                        'Content-Type': file.type,
+                        'x-upsert': 'true'
+                    },
+                    body: file
+                }
+            );
+
+            if (!res.ok) {
+                const errBody = await res.json().catch(() => ({}));
+                throw new Error(errBody.error || res.statusText);
+            }
+
+            statusEl.className = 'upload-status done';
+            statusEl.textContent = '✅ Subida';
+            successCount++;
+
+        } catch (err) {
+            console.error('Upload error:', err);
+            statusEl.className = 'upload-status error';
+            statusEl.textContent = `❌ Error: ${err.message}`;
+            errorCount++;
+        }
+    }
+
+    // Final feedback
+    if (successCount > 0) {
+        showToast(`${successCount} foto${successCount > 1 ? 's' : ''} subida${successCount > 1 ? 's' : ''} a "${selectedGender}" correctamente.`, 'success');
+    }
+    if (errorCount > 0) {
+        showToast(`${errorCount} foto${errorCount > 1 ? 's' : ''} fallaron. Revisa la consola para más detalles.`, 'error');
+    }
+
+    uploadBtn.textContent = 'Subir Fotos a Supabase';
+    selectedPhotoFiles = [];
+}
+
+// Initialize photo uploader when DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+    initPhotoUploader();
+});

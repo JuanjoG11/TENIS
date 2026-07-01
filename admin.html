@@ -83,6 +83,40 @@
 
         </div>
 
+        <!-- Photo Upload to Supabase Storage -->
+        <div class="admin-card">
+            <div class="card-header-admin">
+                <h2 class="card-title-admin">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    Subir Fotos al Catálogo
+                </h2>
+            </div>
+
+            <!-- Gender selector -->
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                <span style="font-family: var(--font-heading); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary);">Categoría:</span>
+                <button id="photo-gender-hombre" class="photo-gender-btn active" data-gender="hombre">👟 Hombre</button>
+                <button id="photo-gender-dama" class="photo-gender-btn" data-gender="dama">👠 Dama</button>
+            </div>
+
+            <!-- Photo dropzone -->
+            <div id="photo-dropzone" class="upload-dropzone">
+                <span class="upload-icon">🖼️</span>
+                <p class="upload-title">Arrastra fotos aquí o haz clic para seleccionar</p>
+                <p class="upload-desc">Formatos: JPG, PNG, WEBP · Podés subir varias a la vez</p>
+                <input type="file" id="photo-file-input" class="hidden-file-input" accept="image/*" multiple>
+            </div>
+
+            <!-- Upload progress list -->
+            <div id="photo-upload-list" style="display: none; display: flex; flex-direction: column; gap: 0.5rem;"></div>
+
+            <!-- Upload button -->
+            <button id="photo-upload-btn" class="btn-admin btn-primary-admin" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Subir Fotos a Supabase
+            </button>
+        </div>
+
         <!-- Dynamic Product Listing & Table Editor -->
         <div class="admin-card" style="margin-top: 1rem;">
             <div class="card-header-admin">

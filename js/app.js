@@ -102,6 +102,8 @@ async function loadProducts() {
         if (combined.length > 0) {
             console.log('Supabase: encontrados', combined.length, 'objetos. Muestra:', combined.slice(0,6));
             products = combined;
+            // Merge ImgBB photos from localStorage
+            mergeImgbbPhotos();
             filteredProducts = [...products];
             return;
         }
@@ -113,6 +115,7 @@ async function loadProducts() {
     if (localData) {
         try {
             products = JSON.parse(localData);
+            mergeImgbbPhotos();
             filteredProducts = [...products];
             return;
         } catch (e) {
@@ -137,7 +140,34 @@ async function loadProducts() {
             products = [];
         }
     }
+    mergeImgbbPhotos();
     filteredProducts = [...products];
+}
+
+// Load photos uploaded via ImgBB (subir.html) and merge into products list
+function mergeImgbbPhotos() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('kicks_imgbb_photos') || '[]');
+        if (!saved.length) return;
+        // Sort newest first
+        const sorted = [...saved].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+        let idCounter = Date.now();
+        const imgbbProducts = sorted.map(item => ({
+            id: `imgbb_${idCounter++}`,
+            nombre: '',
+            marca: '',
+            genero: item.genero === 'dama' ? 'Dama' : 'Hombre',
+            imagen1: item.url,
+            imagen2: '',
+            imagen3: '',
+            descripcion: '',
+            tallas: ''
+        }));
+        // Prepend so newest ImgBB photos appear first
+        products = [...imgbbProducts, ...products];
+    } catch(e) {
+        console.warn('mergeImgbbPhotos error', e);
+    }
 }
 
 // Advanced filters UI removed to improve responsiveness
