@@ -21,6 +21,10 @@ let touchEndX = 0;
 // WhatsApp configuration
 const WHATSAPP_PHONE = '573204961453';
 
+// ── CART ────────────────────────────────────────────────────────────────────
+// Map of product id -> product object
+const cart = new Map();
+
 // DOM Elements
 const productGrid = document.getElementById('product-grid');
 const resultsCount = document.getElementById('results-count');
@@ -235,10 +239,12 @@ function renderProducts() {
     function createCardElement(product) {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.addEventListener('click', () => openModal(product));
+        if (cart.has(product.id)) card.classList.add('in-cart');
 
+        // Clicking the image area opens the modal
         const imgWrapper = document.createElement('div');
         imgWrapper.className = 'card-img-wrapper';
+        imgWrapper.addEventListener('click', () => openModal(product));
 
         const img = document.createElement('img');
         img.className = 'card-img';
@@ -257,6 +263,19 @@ function renderProducts() {
         badge.className = `gender-badge ${genderClass}`;
         badge.textContent = product.genero || '';
         imgWrapper.appendChild(badge);
+
+        // Cart toggle button overlay
+        const cartBtn = document.createElement('button');
+        cartBtn.className = 'card-cart-btn' + (cart.has(product.id) ? ' added' : '');
+        cartBtn.setAttribute('aria-label', 'Agregar al pedido');
+        cartBtn.innerHTML = cart.has(product.id)
+            ? `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
+        cartBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleCart(product, card, cartBtn);
+        });
+        imgWrapper.appendChild(cartBtn);
 
         const cardBody = document.createElement('div');
         cardBody.className = 'card-body';
@@ -378,6 +397,35 @@ function openModal(product) {
     // Display overlay
     productModal.classList.add('open');
     document.body.style.overflow = 'hidden'; // Stop body scrolling
+
+    // Sync "Agregar" button state
+    const addToCartModalBtn = document.getElementById('add-to-cart-modal-btn');
+    if (addToCartModalBtn) {
+        addToCartModalBtn.onclick = () => {
+            if (cart.has(currentProduct.id)) {
+                // Already in cart – remove it
+                cart.delete(currentProduct.id);
+                syncCartStateToGrid();
+                updateCartBadge();
+                addToCartModalBtn.classList.remove('added');
+                addToCartModalBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Agregar al pedido`;
+            } else {
+                cart.set(currentProduct.id, currentProduct);
+                syncCartStateToGrid();
+                updateCartBadge();
+                addToCartModalBtn.classList.add('added');
+                addToCartModalBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Agregado ✓`;
+            }
+        };
+        // Reflect current state
+        if (cart.has(currentProduct.id)) {
+            addToCartModalBtn.classList.add('added');
+            addToCartModalBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg> Agregado ✓`;
+        } else {
+            addToCartModalBtn.classList.remove('added');
+            addToCartModalBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Agregar al pedido`;
+        }
+    }
 }
 
 function closeModal() {
@@ -453,19 +501,187 @@ function handleGesture() {
     }
 }
 
-// 6. WhatsApp Link Generation
+// 6. WhatsApp Link Generation – single product from modal
 function processWhatsAppOrder() {
-    // Send a concise message per user request: only greeting, genre and image link, no ID or Marca
+    if (cart.size > 0) {
+        // Customer already built a cart – send all at once
+        sendCartToWhatsApp();
+        return;
+    }
     const greeting = 'Hola Tennis y Más! Me interesa este producto.';
     const generoPart = currentProduct && currentProduct.genero ? `Género: ${currentProduct.genero}` : '';
     const imagenPart = currentProduct && currentProduct.imagen1 ? `Imagen: ${currentProduct.imagen1}` : '';
     const textMessage = [greeting, generoPart, imagenPart, 'Gracias!'].filter(Boolean).join(' ');
-    
     const encodedText = encodeURIComponent(textMessage);
-    const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedText}`;
+    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedText}`, '_blank');
+}
 
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank');
+// ── CART LOGIC ──────────────────────────────────────────────────────────────
+
+function toggleCart(product, cardEl, btnEl) {
+    if (cart.has(product.id)) {
+        cart.delete(product.id);
+        cardEl.classList.remove('in-cart');
+        btnEl.classList.remove('added');
+        btnEl.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
+    } else {
+        cart.set(product.id, product);
+        cardEl.classList.add('in-cart');
+        btnEl.classList.add('added');
+        btnEl.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`;
+    }
+    updateCartBadge();
+}
+
+function updateCartBadge() {
+    const fab = document.getElementById('cart-fab');
+    const count = document.getElementById('cart-count');
+    if (!fab || !count) return;
+    const n = cart.size;
+    count.textContent = n;
+    fab.style.display = n > 0 ? 'flex' : 'none';
+}
+
+function openCartPanel() {
+    const panel = document.getElementById('cart-panel');
+    if (!panel) return;
+    renderCartPanel();
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCartPanel() {
+    const panel = document.getElementById('cart-panel');
+    if (!panel) return;
+    panel.classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function renderCartPanel() {
+    const list = document.getElementById('cart-items-list');
+    if (!list) return;
+    list.innerHTML = '';
+    cart.forEach((product) => {
+        const item = document.createElement('div');
+        item.className = 'cart-item';
+
+        const img = document.createElement('img');
+        img.src = product.imagen1 || '';
+        img.alt = product.nombre || '';
+        img.className = 'cart-item-img';
+
+        const info = document.createElement('div');
+        info.className = 'cart-item-info';
+
+        const name = document.createElement('span');
+        name.className = 'cart-item-name';
+        name.textContent = product.nombre || product.marca || `Tenis ${product.genero}`;
+
+        const gen = document.createElement('span');
+        gen.className = 'cart-item-gen';
+        gen.textContent = product.genero;
+
+        // Talla input
+        const tallaRow = document.createElement('div');
+        tallaRow.className = 'cart-item-talla-row';
+
+        const tallaLabel = document.createElement('label');
+        tallaLabel.className = 'cart-item-talla-label';
+        tallaLabel.textContent = 'Talla:';
+
+        const tallaInput = document.createElement('input');
+        tallaInput.type = 'text';
+        tallaInput.className = 'cart-item-talla-input';
+        tallaInput.placeholder = 'ej. 42';
+        tallaInput.maxLength = 6;
+        // Restore saved value if any
+        tallaInput.value = product._talla || '';
+        tallaInput.addEventListener('input', () => {
+            product._talla = tallaInput.value.trim();
+            tallaInput.classList.remove('talla-required');
+            const warn = document.getElementById('cart-talla-warn');
+            if (warn) warn.style.display = 'none';
+        });
+
+        tallaRow.appendChild(tallaLabel);
+        tallaRow.appendChild(tallaInput);
+
+        info.appendChild(name);
+        info.appendChild(gen);
+        info.appendChild(tallaRow);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'cart-item-remove';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.setAttribute('aria-label', 'Quitar');
+        removeBtn.addEventListener('click', () => {
+            cart.delete(product.id);
+            updateCartBadge();
+            renderCartPanel();
+            syncCartStateToGrid();
+            if (cart.size === 0) closeCartPanel();
+        });
+
+        item.appendChild(img);
+        item.appendChild(info);
+        item.appendChild(removeBtn);
+        list.appendChild(item);
+    });
+}
+
+function syncCartStateToGrid() {
+    const allCards = document.querySelectorAll('.product-card');
+    allCards.forEach(card => {
+        const img = card.querySelector('.card-img');
+        const btn = card.querySelector('.card-cart-btn');
+        if (!img || !btn) return;
+        let matched = false;
+        cart.forEach(p => { if (p.imagen1 === img.src) matched = true; });
+        if (matched) {
+            card.classList.add('in-cart');
+            btn.classList.add('added');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>`;
+        } else {
+            card.classList.remove('in-cart');
+            btn.classList.remove('added');
+            btn.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`;
+        }
+    });
+}
+
+function sendCartToWhatsApp() {
+    if (cart.size === 0) return;
+
+    // Check for missing tallas and highlight them
+    let missingTalla = false;
+    cart.forEach(p => { if (!p._talla) missingTalla = true; });
+    if (missingTalla) {
+        // Highlight empty inputs
+        document.querySelectorAll('.cart-item-talla-input').forEach(input => {
+            if (!input.value.trim()) {
+                input.classList.add('talla-required');
+                input.focus();
+            } else {
+                input.classList.remove('talla-required');
+            }
+        });
+        const warn = document.getElementById('cart-talla-warn');
+        if (warn) warn.style.display = 'block';
+        return;
+    }
+
+    const lines = ['Hola Tennis y Más! Me interesan estos tenis 👟'];
+    let idx = 1;
+    cart.forEach(p => {
+        const label = p.nombre || p.marca || `Tenis ${p.genero}`;
+        lines.push(`\n*${idx}.* ${label} – ${p.genero}`);
+        lines.push(`📏 Talla: ${p._talla}`);
+        lines.push(`📸 ${p.imagen1}`);
+        idx++;
+    });
+    lines.push('\n¿Me pueden confirmar disponibilidad? Gracias!');
+    const encodedText = encodeURIComponent(lines.join('\n'));
+    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodedText}`, '_blank');
 }
 
 // 7. Core Event Listeners
@@ -533,4 +749,27 @@ function setupEventListeners() {
         touchEndX = e.changedTouches[0].screenX;
         handleGesture();
     }, { passive: true });
+
+    // Cart FAB & Panel
+    const cartFab = document.getElementById('cart-fab');
+    if (cartFab) cartFab.addEventListener('click', openCartPanel);
+
+    const closeCartBtn = document.getElementById('close-cart-btn');
+    if (closeCartBtn) closeCartBtn.addEventListener('click', closeCartPanel);
+
+    const cartPanel = document.getElementById('cart-panel');
+    if (cartPanel) {
+        cartPanel.addEventListener('click', (e) => {
+            if (e.target === cartPanel) closeCartPanel();
+        });
+    }
+
+    const sendCartBtn = document.getElementById('send-cart-btn');
+    if (sendCartBtn) sendCartBtn.addEventListener('click', sendCartToWhatsApp);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && cartPanel && cartPanel.classList.contains('open')) {
+            closeCartPanel();
+        }
+    });
 }

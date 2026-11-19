@@ -363,6 +363,74 @@
             from { opacity: 0; transform: translateY(10px); }
             to   { opacity: 1; transform: translateY(0); }
         }
+
+        /* ── SAVED PHOTOS GRID ─────────────────────────────── */
+        .photos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.7rem;
+        }
+        .photo-tile {
+            position: relative;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            background: var(--bg-main);
+        }
+        .photo-tile img {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-gender-tag {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.55);
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.2rem 0.4rem;
+            text-align: center;
+        }
+        .photo-del {
+            position: absolute;
+            top: 0.3rem;
+            right: 0.3rem;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            transition: background 0.2s;
+        }
+        .photo-del:hover { background: var(--color-dama); }
+        .photos-empty {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 1.5rem;
+        }
+        .refresh-btn {
+            margin-left: auto;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.7rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
     </style>
 </head>
 <body>
@@ -436,6 +504,18 @@
             </button>
         </div>
 
+        <!-- SAVED PHOTOS CARD -->
+        <div class="up-card">
+            <div class="up-card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                Fotos subidas (<span id="photo-count">0</span>)
+                <button class="refresh-btn" id="refresh-photos-btn">↻ Actualizar</button>
+            </div>
+            <div id="photos-grid" class="photos-grid">
+                <p class="photos-empty">Cargando fotos...</p>
+            </div>
+        </div>
+
         <!-- INFO CARD -->
         <div class="up-card" style="font-size:0.82rem; color: var(--text-muted); gap: 0.4rem;">
             <p>🖼️ Las fotos se suben a <strong style="color:var(--text-secondary)">ImgBB</strong> y se guardan automáticamente en el catálogo.</p>
@@ -485,6 +565,7 @@ function checkSession() {
 function showPanel() {
     loginScreen.style.display = 'none';
     uploadPanel.style.display = 'flex';
+    loadSavedPhotos();
 }
 
 loginForm.addEventListener('submit', (e) => {
@@ -689,6 +770,7 @@ async function uploadAll() {
         progressWrap.style.display = 'none';
         progressBar.style.width = '0%';
     }, 1500);
+    loadSavedPhotos();
 }
 
 function toBase64(file) {
@@ -722,7 +804,71 @@ function toast(msg, err = false) {
     setTimeout(() => el.remove(), 4000);
 }
 
+// ── SAVED PHOTOS: LIST & DELETE ────────────────────────────
+async function loadSavedPhotos() {
+    const grid    = document.getElementById('photos-grid');
+    const countEl = document.getElementById('photo-count');
+    if (!grid) return;
+
+    grid.innerHTML = '<p class="photos-empty">Cargando fotos...</p>';
+
+    try {
+        const photos = await readBin();
+        countEl.textContent = photos.length;
+
+        if (!photos.length) {
+            grid.innerHTML = '<p class="photos-empty">No hay fotos subidas todavía.</p>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        photos.forEach((photo, index) => {
+            const tile = document.createElement('div');
+            tile.className = 'photo-tile';
+
+            const img = document.createElement('img');
+            img.src = photo.url;
+            img.loading = 'lazy';
+            img.onerror = () => { img.style.opacity = '0.2'; };
+
+            const tag = document.createElement('div');
+            tag.className = 'photo-gender-tag';
+            tag.textContent = photo.genero === 'dama' ? '👠 Dama' : '👟 Hombre';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'photo-del';
+            delBtn.innerHTML = '🗑️';
+            delBtn.title = 'Eliminar foto del catálogo';
+            delBtn.addEventListener('click', () => deleteSavedPhoto(index));
+
+            tile.appendChild(img);
+            tile.appendChild(tag);
+            tile.appendChild(delBtn);
+            grid.appendChild(tile);
+        });
+    } catch (e) {
+        console.error('loadSavedPhotos error', e);
+        grid.innerHTML = '<p class="photos-empty">Error al cargar las fotos. Intenta de nuevo.</p>';
+    }
+}
+
+async function deleteSavedPhoto(index) {
+    if (!confirm('¿Eliminar esta foto del catálogo?')) return;
+
+    try {
+        const photos = await readBin();
+        photos.splice(index, 1);
+        await writeBin(photos);
+        toast('Foto eliminada del catálogo');
+        await loadSavedPhotos();
+    } catch (e) {
+        console.error('deleteSavedPhoto error', e);
+        toast('Error al eliminar la foto', true);
+    }
+}
+
 // ── INIT ──────────────────────────────────────────────────
+document.getElementById('refresh-photos-btn').addEventListener('click', loadSavedPhotos);
 checkSession();
 </script>
 </body>
