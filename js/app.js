@@ -3,7 +3,7 @@
 // Application State
 let products = [];
 let filteredProducts = [];
-let activeCategory = 'Hombre';
+let activeCategory = 'all';
 let searchQuery = '';
 let activeBrands = new Set();
 let activeSizes = new Set();
@@ -55,6 +55,21 @@ window.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
 });
 
+// Intercala productos por género: H, D, H, D, H, D …
+// Los sobrantes de la categoría más larga van al final.
+function interleaveByGender(list) {
+    const hombres = list.filter(p => p.genero === 'Hombre');
+    const damas   = list.filter(p => p.genero === 'Dama');
+    const others  = list.filter(p => p.genero !== 'Hombre' && p.genero !== 'Dama');
+    const result  = [];
+    const maxLen  = Math.max(hombres.length, damas.length);
+    for (let i = 0; i < maxLen; i++) {
+        if (i < hombres.length) result.push(hombres[i]);
+        if (i < damas.length)   result.push(damas[i]);
+    }
+    return result.concat(others);
+}
+
 async function loadProducts() {
     // Attempt to load images directly from Supabase Storage first (using supabase-js client)
     try {
@@ -101,13 +116,14 @@ async function loadProducts() {
         const combined = [];
         let idCounter = 1;
         hombres2.forEach(h => combined.push({ id: `s${idCounter++}`, nombre: '', marca: '', genero: 'Hombre', imagen1: h.src }));
-        damas2.forEach(d => combined.push({ id: `s${idCounter++}`, nombre: '', marca: '', genero: 'Dama', imagen1: d.src }));
+        damas2.forEach(d => combined.push({ id: `s${idCounter++}`, nombre: '', marca: '', genero: 'Dama',   imagen1: d.src }));
 
         if (combined.length > 0) {
             console.log('Supabase: encontrados', combined.length, 'objetos. Muestra:', combined.slice(0,6));
             products = combined;
-            // Merge ImgBB photos from JSONBin
+            // Merge ImgBB photos from JSONBin, then interleave
             await mergeImgbbPhotos();
+            products = interleaveByGender(products);
             filteredProducts = [...products];
             return;
         }
@@ -120,6 +136,7 @@ async function loadProducts() {
         try {
             products = JSON.parse(localData);
             await mergeImgbbPhotos();
+            products = interleaveByGender(products);
             filteredProducts = [...products];
             return;
         } catch (e) {
@@ -145,6 +162,7 @@ async function loadProducts() {
         }
     }
     await mergeImgbbPhotos();
+    products = interleaveByGender(products);
     filteredProducts = [...products];
 }
 
@@ -335,11 +353,11 @@ function clearAllFilters() {
     if (searchInput) searchInput.value = '';
     activeBrands.clear();
     activeSizes.clear();
-    activeCategory = 'Hombre';
+    activeCategory = 'all';
     
-    // Reset Category Tabs styling: make 'Hombre' active by default
+    // Reset Category Tabs styling: make 'Todos' active by default
     document.querySelectorAll('.gender-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
-    const firstBtn = document.querySelector('.gender-tabs .tab-btn[data-category="Hombre"]');
+    const firstBtn = document.querySelector('.gender-tabs .tab-btn[data-category="all"]');
     if (firstBtn) firstBtn.classList.add('active');
 
     // Clear Pill styling

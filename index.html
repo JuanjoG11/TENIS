@@ -16,38 +16,55 @@
     <!-- Header Navigation -->
     <header>
         <div class="header-container">
-            <div class="logo-wrapper">
-                <a href="/" id="logo-btn" class="logo-link">
-                    <img src="img/logo.png" alt="Tennis y Más" class="logo-img">
-                    <h1 class="logo-title">CATÁLOGO DE TENIS</h1>
-                </a>
-            </div>
-            
-            <!-- Search removed per request -->
+            <a href="/" id="logo-btn" class="logo-link">
+                <img src="img/logo.png" alt="Tennis y Más" class="logo-img">
+                <h1 class="logo-title">CATÁLOGO DE TENIS</h1>
+            </a>
         </div>
     </header>
-    
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-bg-glow"></div>
+        <div class="hero-content">
+            <div class="hero-eyebrow">
+                <span class="hero-dot"></span>
+                Colección disponible ahora
+                <span class="hero-dot"></span>
+            </div>
+            <h2 class="hero-headline">Los tenis más<br><span class="hero-highlight">chimbas</span> de la city</h2>
+            <p class="hero-sub">Toca cualquier tenis para verlo en detalle y armar tu pedido</p>
+        </div>
+        <!-- Ticker / marquee -->
+        <div class="hero-ticker-wrap">
+            <div class="hero-ticker">
+                <span>TENNIS Y MÁS</span><span class="ticker-dot">✦</span>
+                <span>NUEVA COLECCIÓN</span><span class="ticker-dot">✦</span>
+                <span>ENVÍO RÁPIDO</span><span class="ticker-dot">✦</span>
+                <span>CALIDAD PREMIUM</span><span class="ticker-dot">✦</span>
+                <span>TENNIS Y MÁS</span><span class="ticker-dot">✦</span>
+                <span>NUEVA COLECCIÓN</span><span class="ticker-dot">✦</span>
+                <span>ENVÍO RÁPIDO</span><span class="ticker-dot">✦</span>
+                <span>CALIDAD PREMIUM</span><span class="ticker-dot">✦</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Subheader Filter & Category Tabs -->
     <div class="filter-tabs-wrapper">
         <div class="filter-tabs-container">
             <div class="gender-tabs">
-                <button class="tab-btn active" data-category="Hombre">Hombre</button>
-                <button class="tab-btn" data-category="Dama">Dama</button>
+                <button class="tab-btn active" data-category="all">🔥 Todos</button>
+                <button class="tab-btn" data-category="Hombre">👟 Hombre</button>
+                <button class="tab-btn" data-category="Dama">👠 Dama</button>
             </div>
-            <div class="tap-notice-inline">Toca la tarjeta para ver mejor</div>
         </div>
     </div>
-
-    
 
     <!-- Product Grid Section -->
     <main>
         <div id="gallery-m" class="gallery-m"></div>
         <div id="gallery-f" class="gallery-f" style="display:none;"></div>
-
-        <!-- Featured bubble / nube destacada -->
-        <div class="featured-bubble">Los tenis más chimbas de la city</div>
 
         <div id="product-grid" class="product-grid">
             <!-- Dynamic product cards load -->
