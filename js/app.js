@@ -52,7 +52,7 @@ const nextBtn = document.getElementById('next-btn');
 // ── MAINTENANCE MODE ─────────────────────────────────────────────────────────
 // Set to true to force the server-error screen for all visitors.
 // Change back to false when the server is back up.
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 // ─────────────────────────────────────────────────────────────────────────────
 
 window.addEventListener('DOMContentLoaded', async () => {
