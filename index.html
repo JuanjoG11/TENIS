@@ -182,6 +182,100 @@
         </div>
     </div>
 
+    <!-- Server Error Screen -->
+    <div id="server-error-screen" style="display:none; position:fixed; inset:0; z-index:9999; background:#0a0a0f; flex-direction:column; align-items:center; justify-content:center; padding:2rem; font-family:system-ui,-apple-system,sans-serif;">
+        <style>
+            #server-error-screen .err-code {
+                font-size:0.72rem; font-weight:700; letter-spacing:4px; color:#555; text-transform:uppercase; margin-bottom:2.5rem;
+            }
+            #server-error-screen .err-icon-wrap {
+                position:relative; width:72px; height:72px; margin-bottom:2rem;
+            }
+            #server-error-screen .err-icon-wrap svg {
+                width:72px; height:72px;
+            }
+            #server-error-screen .err-pulse {
+                position:absolute; inset:-8px; border-radius:50%; border:1.5px solid rgba(255,45,55,0.35);
+                animation: errPulse 2s ease-in-out infinite;
+            }
+            @keyframes errPulse {
+                0%,100% { transform:scale(1); opacity:.5; }
+                50%      { transform:scale(1.18); opacity:0; }
+            }
+            #server-error-screen h1 {
+                font-size:1.5rem; font-weight:800; color:#f0f0f0; letter-spacing:0.5px; margin:0 0 0.5rem; text-align:center;
+            }
+            #server-error-screen .err-sub {
+                font-size:0.88rem; color:#666; line-height:1.7; text-align:center; max-width:300px; margin:0 0 2.5rem;
+            }
+            #server-error-screen .err-divider {
+                width:100%; max-width:320px; border:none; border-top:1px solid #1e1e26; margin-bottom:2rem;
+            }
+            #server-error-screen .err-status-row {
+                display:flex; align-items:center; gap:0.6rem; margin-bottom:2rem;
+            }
+            #server-error-screen .err-dot {
+                width:8px; height:8px; border-radius:50%; background:#ff2d37;
+                animation: errBlink 1.2s step-start infinite;
+            }
+            @keyframes errBlink {
+                0%,100% { opacity:1; } 50% { opacity:0; }
+            }
+            #server-error-screen .err-status-text {
+                font-size:0.78rem; color:#ff2d37; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+            }
+            #server-error-screen .err-retry-btn {
+                display:flex; align-items:center; gap:0.5rem;
+                background:#1a1a24; color:#c0c0c0; border:1px solid #2a2a38;
+                border-radius:6px; padding:0.75rem 1.6rem; font-size:0.88rem;
+                font-weight:600; cursor:pointer; letter-spacing:0.5px;
+                transition: background 0.2s, color 0.2s, border-color 0.2s;
+            }
+            #server-error-screen .err-retry-btn:hover {
+                background:#22222f; color:#fff; border-color:#3a3a50;
+            }
+            #server-error-screen .err-ts {
+                margin-top:2.5rem; font-size:0.7rem; color:#333; letter-spacing:1px;
+            }
+        </style>
+
+        <span class="err-code">Tennis y Más — Catálogo</span>
+
+        <div class="err-icon-wrap">
+            <div class="err-pulse"></div>
+            <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="36" cy="36" r="35" stroke="#1e1e26" stroke-width="1.5"/>
+                <path d="M22 46 L50 46 M28 36 Q36 20 44 36" stroke="#2a2a38" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="36" cy="36" r="12" stroke="#ff2d37" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <line x1="36" y1="30" x2="36" y2="37" stroke="#ff2d37" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="36" cy="41" r="1.2" fill="#ff2d37"/>
+            </svg>
+        </div>
+
+        <h1>No se pudo cargar el catálogo</h1>
+        <p class="err-sub">El servidor no respondió. Puede ser un problema temporal de conexión o mantenimiento.</p>
+
+        <hr class="err-divider">
+
+        <div class="err-status-row">
+            <span class="err-dot"></span>
+            <span class="err-status-text">Servicio no disponible</span>
+        </div>
+
+        <button class="err-retry-btn" onclick="location.reload()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            Intentar de nuevo
+        </button>
+
+        <span class="err-ts" id="err-timestamp"></span>
+        <script>
+            (function(){
+                const el = document.getElementById('err-timestamp');
+                if(el){ const d = new Date(); el.textContent = 'Error registrado: ' + d.toLocaleTimeString('es-CO', {hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+            })();
+        </script>
+    </div>
+
     <!-- Data & Application Logic Scripts -->
     <script src="js/default-data.js"></script>
 

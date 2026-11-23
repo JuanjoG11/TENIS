@@ -49,8 +49,29 @@ const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
 
 // 1. Initial Load & Database Parsing
+// ── MAINTENANCE MODE ─────────────────────────────────────────────────────────
+// Set to true to force the server-error screen for all visitors.
+// Change back to false when the server is back up.
+const MAINTENANCE_MODE = true;
+// ─────────────────────────────────────────────────────────────────────────────
+
 window.addEventListener('DOMContentLoaded', async () => {
+    // Show error screen immediately if maintenance mode is on
+    if (MAINTENANCE_MODE) {
+        const errorScreen = document.getElementById('server-error-screen');
+        if (errorScreen) errorScreen.style.display = 'flex';
+        return;
+    }
+
     await loadProducts();
+
+    // If nothing loaded at all, show the server-error screen instead of an empty catalog
+    if (products.length === 0) {
+        const errorScreen = document.getElementById('server-error-screen');
+        if (errorScreen) errorScreen.style.display = 'flex';
+        return;
+    }
+
     renderProducts();
     setupEventListeners();
 });
